@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173d35">
+    <title>{{ restaurant.name }} — Menu</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #202923;
+            --muted: #68736b;
+            --forest: #173d35;
+            --leaf: #2d795b;
+            --citrus: #e6b64c;
+            --paper: #f4f2e9;
+            --white: #fffefa;
+            --line: #e5e5db;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+        }
+        .masthead {
+            position: relative;
+            overflow: hidden;
+            padding: 2.6rem 1.2rem 2.2rem;
+            background: var(--forest);
+            color: var(--white);
+            text-align: center;
+        }
+        .masthead::after {
+            position: absolute;
+            right: -3.5rem;
+            bottom: -5.5rem;
+            width: 13rem;
+            height: 13rem;
+            border: 1px solid rgba(230, 182, 76, .38);
+            border-radius: 50%;
+            content: "";
+        }
+        .eyebrow {
+            margin: 0 0 .65rem;
+            color: var(--citrus);
+            font: 700 .72rem/1.2 system-ui, sans-serif;
+            text-transform: uppercase;
+        }
+        h1 { margin: 0; font-size: 2.5rem; }
+        .contact { margin-top: .65rem; color: #d7e1d8; font: .92rem/1.5 system-ui, sans-serif; }
+        main { width: min(100% - 2rem, 680px); margin: 0 auto; padding: 1rem 0 2.4rem; }
+        .category { margin-top: 1.5rem; }
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin: 0 0 .8rem;
+            color: var(--forest);
+            font-size: 1.4rem;
+        }
+        h2::after { height: 1px; flex: 1; background: var(--line); content: ""; }
+        .dish {
+            display: flex;
+            gap: .9rem;
+            align-items: center;
+            margin-bottom: .7rem;
+            padding: .75rem;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--white);
+        }
+        .dish img { width: 88px; height: 88px; flex: 0 0 88px; border-radius: 6px; object-fit: cover; }
+        .info { min-width: 0; flex: 1; }
+        .name { font-size: 1.08rem; font-weight: 700; }
+        .name-ar { margin-top: .15rem; color: var(--muted); font-size: .95rem; }
+        .desc { margin-top: .35rem; color: var(--muted); font: .86rem/1.45 system-ui, sans-serif; }
+        .price { margin-top: .4rem; color: var(--leaf); font: 700 .95rem/1.2 system-ui, sans-serif; }
+        .empty { padding: .9rem 0; color: var(--muted); font: .9rem/1.5 system-ui, sans-serif; }
+        footer { padding: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font: .75rem/1.4 system-ui, sans-serif; }
+        @media (max-width: 420px) {
+            .masthead { padding-top: 2rem; }
+            h1 { font-size: 2rem; }
+            .dish img { width: 72px; height: 72px; flex-basis: 72px; }
+            .name { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="masthead">
+        <p class="eyebrow">Menu du restaurant</p>
+        <h1>{{ restaurant.name }}</h1>
+        {% if restaurant.address or restaurant.phone %}
+            <div class="contact">
+                {% if restaurant.address %}<p>{{ restaurant.address }}</p>{% endif %}
+                {% if restaurant.phone %}<p>{{ restaurant.phone }}</p>{% endif %}
+            </div>
+        {% endif %}
+    </header>
+    <main>
+        {% for category in categories %}
+            <section class="category">
+                <h2>{{ category.name }}</h2>
+                {% for product in category.products.all %}
+                    <article class="dish">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% endif %}
+                        <div class="info">
+                            <div class="name">{{ product.name }}</div>
+                            {% if product.name_ar %}<div class="name-ar">{{ product.name_ar }}</div>{% endif %}
+                            {% if product.description %}<div class="desc">{{ product.description }}</div>{% endif %}
+                            <div class="price">{{ product.price }} DH</div>
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="empty">Aucun plat dans cette catégorie.</p>
+                {% endfor %}
+            </section>
+        {% empty %}
+            <p class="empty">Menu bientôt disponible.</p>
+        {% endfor %}
+    </main>
+    <footer>Powered by TAPBusiness</footer>
+</body>
+</html>

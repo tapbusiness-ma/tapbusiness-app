@@ -5,7 +5,11 @@
 <h2>Mes restaurants</h2>
 <ul>
     {% for membership in memberships %}
-        <li>{{ membership.restaurant.name }} — {{ membership.get_role_display }}</li>
+        <li>
+            {{ membership.restaurant.name }} — {{ membership.get_role_display }}
+            <a href="{% url 'menu:public_menu' membership.restaurant.slug %}">Voir le menu</a> |
+            <a href="{% url 'menu:menu_qr' membership.restaurant.slug %}">Télécharger le QR</a>
+        </li>
     {% empty %}
         <li>Aucun restaurant pour le moment.</li>
     {% endfor %}
