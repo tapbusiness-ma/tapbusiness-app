@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # تطبيقات TAPBusiness غنزيدوها فالمرحلة 2 (apps/accounts, apps/restaurants, ...)
+    # تطبيقات TAPBusiness
+    "apps.restaurants",
 ]
 
 MIDDLEWARE = [
