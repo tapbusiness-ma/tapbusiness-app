@@ -46,6 +46,7 @@ class Product(models.Model):
     name = models.CharField("الاسم", max_length=200)
     name_ar = models.CharField("الاسم بالعربية", max_length=200, blank=True)
     description = models.TextField("الوصف", blank=True)
+    image = models.ImageField("الصورة", upload_to="products/", blank=True, null=True)
     price = models.DecimalField("الثمن (درهم)", max_digits=8, decimal_places=2)
     is_available = models.BooleanField("متوفر", default=True)
     order = models.PositiveIntegerField("الترتيب", default=0)
