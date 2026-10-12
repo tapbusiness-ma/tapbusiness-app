@@ -6,6 +6,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 # المسار الرئيسي ديال المشروع
@@ -69,12 +70,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # --- قاعدة البيانات ---
-# محلياً: SQLite (بسيطة، بلا إعداد). فالإنتاج: PostgreSQL عبر DATABASE_URL
+# محلياً: SQLite. فالإنتاج (Render): PostgreSQL عبر DATABASE_URL
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
 # --- اللغة والوقت ---

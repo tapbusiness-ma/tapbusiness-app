@@ -5,7 +5,7 @@
 <p>الأطباق: <strong>{{ cart.total }} DH</strong></p>
 <p>التوصيل: <strong>{{ restaurant.delivery_fee }} DH</strong></p>
 <p>المجموع: <strong>{{ cart.total|add:restaurant.delivery_fee }} DH</strong></p>
-<form method="post">
+<form method="post" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">أكد الطلب</button>
