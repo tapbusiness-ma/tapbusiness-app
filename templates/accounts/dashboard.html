@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Mon espace — TAPBusiness{% endblock %}
+{% block content %}
+<h1>Bienvenue {{ user.username }}</h1>
+<h2>Mes restaurants</h2>
+<ul>
+    {% for membership in memberships %}
+        <li>{{ membership.restaurant.name }} — {{ membership.get_role_display }}</li>
+    {% empty %}
+        <li>Aucun restaurant pour le moment.</li>
+    {% endfor %}
+</ul>
+<form method="post" action="{% url 'accounts:logout' %}">
+    {% csrf_token %}
+    <button type="submit">Se déconnecter</button>
+</form>
+{% endblock %}

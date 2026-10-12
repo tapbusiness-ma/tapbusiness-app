@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Connexion — TAPBusiness{% endblock %}
+{% block content %}
+<h1>Connexion</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button type="submit">Se connecter</button>
+</form>
+<p>Pas de compte ? <a href="{% url 'accounts:signup' %}">Créer un compte</a></p>
+{% endblock %}

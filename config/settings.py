@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # تطبيقات TAPBusiness
     "apps.restaurants",
+    "apps.accounts",
 ]
 
 MIDDLEWARE = [
@@ -84,3 +85,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"  # للإنتاج
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# الدخول والخروج
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "accounts:dashboard"
+LOGOUT_REDIRECT_URL = "accounts:login"
