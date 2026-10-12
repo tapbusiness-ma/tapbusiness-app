@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}تأكيد الطلب — {{ restaurant.name }}{% endblock %}
+{% block content %}
+<h1>تأكيد الطلب</h1>
+<p>الأطباق: <strong>{{ cart.total }} DH</strong></p>
+<p>التوصيل: <strong>{{ restaurant.delivery_fee }} DH</strong></p>
+<p>المجموع: <strong>{{ cart.total|add:restaurant.delivery_fee }} DH</strong></p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">أكد الطلب</button>
+</form>
+{% endblock %}

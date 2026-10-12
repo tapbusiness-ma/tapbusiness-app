@@ -77,6 +77,16 @@
         .name-ar { margin-top: .15rem; color: var(--muted); font-size: .95rem; }
         .desc { margin-top: .35rem; color: var(--muted); font: .86rem/1.45 system-ui, sans-serif; }
         .price { margin-top: .4rem; color: var(--leaf); font: 700 .95rem/1.2 system-ui, sans-serif; }
+        .add-to-cart {
+            margin-top: .4rem;
+            padding: .4rem .8rem;
+            border: 0;
+            border-radius: 5px;
+            background: var(--forest);
+            color: white;
+            font: 600 .82rem/1.2 system-ui, sans-serif;
+            cursor: pointer;
+        }
         .empty { padding: .9rem 0; color: var(--muted); font: .9rem/1.5 system-ui, sans-serif; }
         footer { padding: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font: .75rem/1.4 system-ui, sans-serif; }
         @media (max-width: 420px) {
@@ -95,6 +105,7 @@
             <div class="contact">
                 {% if restaurant.address %}<p>{{ restaurant.address }}</p>{% endif %}
                 {% if restaurant.phone %}<p>{{ restaurant.phone }}</p>{% endif %}
+                <p><a href="{% url 'orders:cart' restaurant.slug %}" style="color: white;">السلة</a></p>
             </div>
         {% endif %}
     </header>
@@ -112,6 +123,10 @@
                             {% if product.name_ar %}<div class="name-ar">{{ product.name_ar }}</div>{% endif %}
                             {% if product.description %}<div class="desc">{{ product.description }}</div>{% endif %}
                             <div class="price">{{ product.price }} DH</div>
+                            <form method="post" action="{% url 'orders:cart_add' restaurant.slug product.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="add-to-cart">+ زيد للسلة</button>
+                            </form>
                         </div>
                     </article>
                 {% empty %}

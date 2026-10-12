@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}تم استلام طلبك{% endblock %}
+{% block content %}
+<h1>شكراً! تم استلام طلبك</h1>
+<p>رقم الطلب: <strong>#{{ order.id }}</strong></p>
+<p>المجموع: <strong>{{ order.total }} DH</strong></p>
+<p>غنتاصلو بيك قريباً على {{ order.customer_phone }}.</p>
+<p><a href="{% url 'menu:public_menu' restaurant.slug %}">رجوع للمنيو</a></p>
+{% endblock %}

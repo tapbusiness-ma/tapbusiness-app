@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}السلة — {{ restaurant.name }}{% endblock %}
+{% block content %}
+<h1>السلة — {{ restaurant.name }}</h1>
+{% for line in cart.lines %}
+    <div>
+        {{ line.product.name }} × {{ line.quantity }} = {{ line.line_total }} DH
+        <form method="post" action="{% url 'orders:cart_remove' restaurant.slug line.product.id %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" style="width:auto; padding:.3rem .6rem;">حذف</button>
+        </form>
+    </div>
+{% empty %}
+    <p>السلة خاوية.</p>
+{% endfor %}
+{% if cart.lines %}
+    <p><strong>المجموع: {{ cart.total }} DH</strong></p>
+    <p><a href="{% url 'orders:checkout' restaurant.slug %}">تأكيد الطلب ←</a></p>
+{% endif %}
+<p><a href="{% url 'menu:public_menu' restaurant.slug %}">رجوع للمنيو</a></p>
+{% endblock %}

@@ -14,6 +14,9 @@ class Restaurant(models.Model):
     )
     phone = models.CharField("الهاتف", max_length=20, blank=True)
     address = models.CharField("العنوان", max_length=255, blank=True)
+    delivery_fee = models.DecimalField(
+        "مصاريف التوصيل (درهم)", max_digits=8, decimal_places=2, default=0
+    )
     is_active = models.BooleanField("نشط", default=True)
     created_at = models.DateTimeField("تاريخ الإنشاء", auto_now_add=True)
 
