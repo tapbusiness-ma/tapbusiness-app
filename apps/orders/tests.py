@@ -106,3 +106,27 @@ class CheckoutFlowTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 405)
+
+    def test_checkout_uses_table_number_from_session(self):
+        session = self.client.session
+        session[f"table_{self.restaurant.id}"] = "T7"
+        session.save()
+        self.client.post(
+            reverse(
+                "orders:cart_add",
+                args=[self.restaurant.slug, self.product.id],
+            )
+        )
+
+        self.client.post(
+            reverse("orders:checkout", args=[self.restaurant.slug]),
+            {
+                "customer_name": "Table Customer",
+                "customer_phone": "0611111111",
+                "address": "",
+            },
+        )
+
+        order = Order.objects.get()
+        self.assertEqual(order.order_type, Order.OrderType.TABLE)
+        self.assertEqual(order.table_number, "T7")

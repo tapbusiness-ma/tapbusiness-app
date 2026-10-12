@@ -56,11 +56,18 @@ def checkout(request, slug):
                     start=Decimal("0.00"),
                 )
                 delivery_fee = restaurant.delivery_fee
+                table_number = request.session.get(f"table_{restaurant.id}", "")
                 order = Order.objects.create(
                     restaurant=restaurant,
+                    order_type=(
+                        Order.OrderType.TABLE
+                        if table_number
+                        else Order.OrderType.DELIVERY
+                    ),
                     customer_name=form.cleaned_data["customer_name"],
                     customer_phone=form.cleaned_data["customer_phone"],
                     address=form.cleaned_data["address"],
+                    table_number=table_number,
                     subtotal=subtotal,
                     delivery_fee=delivery_fee,
                     total=subtotal + delivery_fee,

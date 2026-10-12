@@ -21,10 +21,15 @@ def public_menu(request, slug):
             ),
         )
     )
+    table_number = request.session.get(f"table_{restaurant.id}", "")
     return render(
         request,
         "menu/public_menu.html",
-        {"restaurant": restaurant, "categories": categories},
+        {
+            "restaurant": restaurant,
+            "categories": categories,
+            "table_number": table_number,
+        },
     )
 
 

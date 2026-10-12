@@ -9,6 +9,16 @@
             {{ membership.restaurant.name }} — {{ membership.get_role_display }}
             <a href="{% url 'menu:public_menu' membership.restaurant.slug %}">Voir le menu</a> |
             <a href="{% url 'menu:menu_qr' membership.restaurant.slug %}">Télécharger le QR</a>
+            <ul>
+                {% for table in membership.restaurant.tables.all %}
+                    {% if table.is_active %}
+                        <li>
+                            طاولة {{ table.number }} —
+                            <a href="{% url 'tables:table_qr' membership.restaurant.slug table.id %}">تحميل QR</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
         </li>
     {% empty %}
         <li>Aucun restaurant pour le moment.</li>

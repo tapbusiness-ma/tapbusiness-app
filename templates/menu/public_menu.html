@@ -101,10 +101,11 @@
     <header class="masthead">
         <p class="eyebrow">Menu du restaurant</p>
         <h1>{{ restaurant.name }}</h1>
-        {% if restaurant.address or restaurant.phone %}
+        {% if restaurant.address or restaurant.phone or table_number %}
             <div class="contact">
                 {% if restaurant.address %}<p>{{ restaurant.address }}</p>{% endif %}
                 {% if restaurant.phone %}<p>{{ restaurant.phone }}</p>{% endif %}
+                {% if table_number %}<p>طاولة {{ table_number }}</p>{% endif %}
                 <p><a href="{% url 'orders:cart' restaurant.slug %}" style="color: white;">السلة</a></p>
             </div>
         {% endif %}
