@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     # تطبيقات TAPBusiness
     "apps.restaurants",
     "apps.accounts",
+    "apps.menu",
 ]
 
 MIDDLEWARE = [
