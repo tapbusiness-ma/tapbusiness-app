@@ -20,7 +20,10 @@ def signup(request):
 @login_required
 def dashboard(request):
     """المساحة الخاصة: غير المطاعم ديال هاد المستخدم كتبان."""
-    memberships = request.user.memberships.select_related("restaurant").prefetch_related(
-        "restaurant__tables"
+    memberships = (
+        request.user.memberships.select_related(
+            "restaurant", "restaurant__subscription__plan"
+        )
+        .prefetch_related("restaurant__tables")
     )
     return render(request, "accounts/dashboard.html", {"memberships": memberships})
