@@ -149,6 +149,9 @@ def owner_orders(request, slug):
         ).aggregate(total=Sum("total"))["total"]
         or 0,
     }
+    memberships = request.user.memberships.select_related("restaurant").order_by(
+        "restaurant__name"
+    )
     return render(
         request,
         "orders/owner_orders.html",
@@ -158,6 +161,7 @@ def owner_orders(request, slug):
             "stats": stats,
             "status_filter": status_filter,
             "status_choices": Order.Status.choices,
+            "memberships": memberships,
         },
     )
 
