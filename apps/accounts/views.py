@@ -9,6 +9,13 @@ from apps.menu.models import Product
 from apps.orders.models import Order
 
 
+def home(request):
+    """الصفحة الرئيسية — عرض TAPBusiness."""
+    if request.user.is_authenticated:
+        return redirect("accounts:dashboard")
+    return render(request, "home.html")
+
+
 def signup(request):
     """إنشاء حساب جديد لمول مطعم."""
     if request.method == "POST":

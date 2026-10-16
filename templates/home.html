@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TAPBusiness — المنيو الرقمي لمطعمك</title>
+<meta name="description" content="TAPBusiness: منيو رقمي بـQR code للمطاعم والمقاهي فالمغرب. طلب أونلاين، طلب من الطاولة، ولوحة تحكم — بلا عمولة.">
+<style>
+:root {
+  --navy: #111827;
+  --gold: #D4AF37;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; color: var(--text); background: var(--bg); }
+a { text-decoration: none; }
+/* nav */
+.nav { background: var(--navy); color: #fff; padding: .9rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+.brand { font-size: 1.3rem; font-weight: 800; color: #fff; }
+.brand span { color: var(--gold); }
+.nav .links a { color: #d1d5db; margin-right: 1.2rem; font-size: .92rem; }
+.nav .links a:hover { color: #fff; }
+.btn { display: inline-block; padding: .65rem 1.4rem; border-radius: 10px; font-weight: 700; font-size: .95rem; }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-navy { background: var(--navy); color: #fff; }
+.btn-outline { border: 2px solid var(--navy); color: var(--navy); }
+/* hero */
+.hero { background: var(--navy); color: #fff; padding: 4rem 1.5rem; text-align: center; }
+.hero h1 { font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.4; }
+.hero h1 span { color: var(--gold); }
+.hero p { color: #d1d5db; font-size: 1.1rem; max-width: 640px; margin: 0 auto 2rem; line-height: 1.8; }
+.hero .cta { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+/* sections */
+.section { padding: 3.5rem 1.5rem; max-width: 1080px; margin: 0 auto; }
+.section h2 { text-align: center; font-size: 1.6rem; margin-bottom: .6rem; }
+.section .sub { text-align: center; color: var(--muted); margin-bottom: 2.2rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.feat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+.feat .icon { font-size: 2rem; margin-bottom: .7rem; }
+.feat h3 { margin-bottom: .4rem; font-size: 1.05rem; }
+.feat p { color: var(--muted); font-size: .92rem; line-height: 1.7; }
+/* steps */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; counter-reset: step; }
+.step { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
+.step .num { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: var(--gold); font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto .8rem; }
+.step h3 { margin-bottom: .4rem; }
+.step p { color: var(--muted); font-size: .9rem; }
+/* pricing */
+.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; align-items: stretch; }
+.plan { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.8rem 1.5rem; text-align: center; display: flex; flex-direction: column; }
+.plan.hot { border: 2px solid var(--gold); position: relative; }
+.plan .tag { position: absolute; top: -13px; right: 50%; transform: translateX(50%); background: var(--gold); color: var(--navy); font-size: .75rem; font-weight: 800; padding: .2rem .9rem; border-radius: 999px; white-space: nowrap; }
+.plan h3 { font-size: 1.2rem; margin-bottom: .4rem; }
+.plan .price { font-size: 2rem; font-weight: 800; margin: .6rem 0; }
+.plan .price small { font-size: .85rem; font-weight: 400; color: var(--muted); }
+.plan ul { list-style: none; text-align: right; margin: 1rem 0 1.5rem; flex: 1; }
+.plan li { padding: .35rem 0; font-size: .92rem; color: var(--muted); }
+.plan li::before { content: "✓ "; color: var(--gold); font-weight: 800; }
+/* contact / footer */
+.contact { background: var(--navy); color: #fff; text-align: center; padding: 3rem 1.5rem; }
+.contact h2 { margin-bottom: 1rem; }
+.contact p { color: #d1d5db; margin-bottom: 1.5rem; }
+.contact a.wa { display: inline-block; background: #22c55e; color: #fff; padding: .7rem 1.6rem; border-radius: 10px; font-weight: 700; margin: .3rem; }
+.contact a.ig { display: inline-block; background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: .65rem 1.6rem; border-radius: 10px; font-weight: 700; margin: .3rem; }
+footer { text-align: center; padding: 1.2rem; color: var(--muted); font-size: .85rem; }
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.6rem; }
+  .nav .links a.hide-m { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="/">TAP<span>Business</span></a>
+  <div class="links">
+    <a class="hide-m" href="#features">المميزات</a>
+    <a class="hide-m" href="#pricing">الأسعار</a>
+    <a href="{% url 'accounts:login' %}">دخول</a>
+    <a class="btn btn-gold" href="{% url 'accounts:signup' %}" style="padding:.5rem 1rem">أنشئ حسابك</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>المنيو الرقمي لمطعمك،<br><span>بلا عمولة. بلا تعقيد.</span></h1>
+  <p>زبنائك كيسكانيو الـQR code، كيشوفو المنيو، وكيطلبو من التيليفون — نتا كتستقبل الطلبات فلوحة التحكم ديالك مباشرة.</p>
+  <div class="cta">
+    <a class="btn btn-gold" href="{% url 'accounts:signup' %}">ابدأ مجاناً</a>
+    <a class="btn btn-outline" href="#pricing" style="border-color:var(--gold);color:var(--gold)">شوف الأسعار</a>
+  </div>
+</header>
+
+<section class="section" id="features">
+  <h2>شنو كيعطيك TAPBusiness؟</h2>
+  <p class="sub">كلشي اللي محتاجو المطعم العصري فبلاصة وحدة</p>
+  <div class="grid">
+    <div class="feat">
+      <div class="icon">🪑</div>
+      <h3>QR لكل طاولة</h3>
+      <p>كود خاص بكل طاولة — الزبون كيسكاني وكيطلب من بلاصتو، والطلب كيوصل برقم الطاولة.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🛒</div>
+      <h3>طلب أونلاين</h3>
+      <p>سلة مشتريات وتأكيد الطلب من المتصفح مباشرة — بلا تطبيق، بلا تسجيل إجباري.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">📊</div>
+      <h3>لوحة تحكم ذكية</h3>
+      <p>إحصائيات اليوم، لائحة الطلبات، وتبديل الحالة بضغطة وحدة — من التيليفون ولا البيسي.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🌍</div>
+      <h3>عربي وفرنسي</h3>
+      <p>المنيو والواجهة بالعربية والفرنسية، مصممة للمطاعم المغربية.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">💰</div>
+      <h3>بلا عمولة</h3>
+      <p>نخلصو اشتراك شهري ثابت — كل درهم من المبيعات كيبقى ليك.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🖨</div>
+      <h3>QR جاهز للطباعة</h3>
+      <p>حمّل أكواد الـQR بجودة عالية وطبعها — لصقها فالطاولات وساليت.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <h2>كيفاش تبدا؟</h2>
+  <p class="sub">ثلاثة خطوات وتكون خدام</p>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h3>أنشئ حسابك</h3>
+      <p>سجل فدقيقة وحدة وخلق المطعم ديالك.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h3>زيد المنيو</h3>
+      <p>التصنيفات، الأطباق، الأثمنة والصور.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h3>طبع الـQR</h3>
+      <p>حمّل الكود ولصقو فالطاولات — الزبناء يقدرو يطلبو اليوم.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <h2>أسعار واضحة، بلا مفاجآت</h2>
+  <p class="sub">اشتراك شهري ثابت — بلا عمولة على المبيعات، بلا التزام</p>
+  <div class="pricing">
+    <div class="plan">
+      <h3>Démo</h3>
+      <div class="price">0 <small>DH</small></div>
+      <ul>
+        <li>تجربة مجانية</li>
+        <li>حتى 10 أطباق</li>
+        <li>حتى 2 طاولات</li>
+        <li>QR المنيو</li>
+      </ul>
+      <a class="btn btn-outline" href="{% url 'accounts:signup' %}">جرب مجاناً</a>
+    </div>
+    <div class="plan hot">
+      <div class="tag">الأكثر اختياراً</div>
+      <h3>Pro</h3>
+      <div class="price">199 <small>DH / شهر</small></div>
+      <ul>
+        <li>منيو كامل عربي / فرنسي</li>
+        <li>QR لكل طاولة</li>
+        <li>طلب أونلاين + من الطاولة</li>
+        <li>تعديلات غير محدودة</li>
+      </ul>
+      <a class="btn btn-gold" href="{% url 'accounts:signup' %}">ابدأ الآن</a>
+    </div>
+    <div class="plan">
+      <h3>Premium</h3>
+      <div class="price">399 <small>DH / شهر</small></div>
+      <ul>
+        <li>كلشي اللي فـPro</li>
+        <li>تصميم خاص بمطعمك</li>
+        <li>ملف Google Business</li>
+        <li>دعم ذو أولوية</li>
+      </ul>
+      <a class="btn btn-navy" href="{% url 'accounts:signup' %}">تواصل معانا</a>
+    </div>
+  </div>
+</section>
+
+<section class="contact">
+  <h2>عندك سؤال؟ هضر معانا</h2>
+  <p>كنجاوبو بالعربية والفرنسية — مرحباً بيك</p>
+  <a class="wa" href="https://wa.me/212720163682">📱 واتساب: 0720163682</a>
+  <a class="ig" href="https://instagram.com/tapbusiness.ma">📸 @tapbusiness.ma</a>
+</section>
+
+<footer>
+  TAPBusiness © 2026 — صُنع بحب فالمغرب 🇲🇦
+</footer>
+
+</body>
+</html>
