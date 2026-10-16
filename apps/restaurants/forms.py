@@ -12,3 +12,9 @@ class RestaurantForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["slug"].required = False
         self.fields["slug"].help_text = "اختياري — إلا خليتيه خاوي غنولدوه من الاسم"
+class RestaurantSettingsForm(forms.ModelForm):
+    """تعديل إعدادات المطعم — بلا ما نبدل الـslug (كيهرس الروابط)."""
+
+    class Meta:
+        model = Restaurant
+        fields = ["name", "phone", "address", "delivery_fee"]

@@ -6,9 +6,15 @@ from django.contrib import admin
 from django.urls import include, path
 
 from apps.accounts import views as accounts_views
+from apps.restaurants import views as restaurants_views
 
 urlpatterns = [
     path("", accounts_views.home, name="home"),
+    path(
+        "dashboard/<slug:slug>/settings/",
+        restaurants_views.restaurant_settings,
+        name="restaurant_settings",
+    ),
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
     path("restaurants/", include("apps.restaurants.urls")),

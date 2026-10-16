@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
 from apps.subscriptions.models import Plan, Subscription
-from .forms import RestaurantForm
+from .forms import RestaurantForm, RestaurantSettingsForm
 from .models import Membership, Restaurant
 
 
@@ -43,3 +43,37 @@ def restaurant_create(request):
         form = RestaurantForm()
 
     return render(request, "restaurants/restaurant_form.html", {"form": form})
+def _get_owned_restaurant(request, slug):
+    """يرجع المطعم إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
+    return get_object_or_404(
+        Restaurant.objects.filter(
+            slug=slug,
+            is_active=True,
+            memberships__user=request.user,
+            memberships__role__in=[
+                Membership.Roles.OWNER,
+                Membership.Roles.MANAGER,
+            ],
+        )
+    )
+
+
+@login_required
+def restaurant_settings(request, slug):
+    """إعدادات المطعم: الاسم، الهاتف، العنوان، ثمن التوصيل."""
+    restaurant = _get_owned_restaurant(request, slug)
+    if request.method == "POST":
+        form = RestaurantSettingsForm(request.POST, instance=restaurant)
+        if form.is_valid():
+            form.save()
+            return redirect("accounts:dashboard")
+    else:
+        form = RestaurantSettingsForm(instance=restaurant)
+    ctx = {
+        "restaurant": restaurant,
+        "form": form,
+        "memberships": request.user.memberships.select_related(
+            "restaurant"
+        ).order_by("restaurant__name"),
+    }
+    return render(request, "restaurants/restaurant_settings.html", ctx)
