@@ -1,40 +1,190 @@
-{% extends "base.html" %}
-{% block title %}Mon espace — TAPBusiness{% endblock %}
-{% block content %}
-<p><a href="{% url 'restaurants:create' %}">＋ أنشئ مطعماً جديداً</a></p>
-<h1>Bienvenue {{ user.username }}</h1>
-<h2>Mes restaurants</h2>
-<ul>
-    {% for membership in memberships %}
-        <li>
-            {{ membership.restaurant.name }} — {{ membership.get_role_display }}
-            <a href="{% url 'menu:public_menu' membership.restaurant.slug %}">Voir le menu</a> |
-            <a href="{% url 'menu:menu_qr' membership.restaurant.slug %}">Télécharger le QR</a> |
-            <a href="{% url 'orders:owner_orders' membership.restaurant.slug %}">📦 الطلبات</a>
-            <br>💳 الباقة:
-            {% if membership.restaurant.subscription %}
-                {{ membership.restaurant.subscription.plan.name }}
-                ({{ membership.restaurant.subscription.get_status_display }})
-            {% else %}
-                بلا اشتراك
-            {% endif %}
-            <ul>
-                {% for table in membership.restaurant.tables.all %}
-                    {% if table.is_active %}
-                        <li>
-                            طاولة {{ table.number }} —
-                            <a href="{% url 'tables:table_qr' membership.restaurant.slug table.id %}">تحميل QR</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </li>
-    {% empty %}
-        <li>Aucun restaurant pour le moment.</li>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة التحكم — TAPBusiness</title>
+<style>
+:root {
+  --navy: #111827;
+  --gold: #D4AF37;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+/* ---- Sidebar ---- */
+.sidebar { width: 248px; background: var(--navy); color: #d1d5db; padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; }
+.brand { color: #fff; font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; }
+.brand span { color: var(--gold); }
+.nav-title { font-size: .72rem; color: #9ca3af; margin: 1rem 0 .4rem; letter-spacing: .02em; }
+.nav a { display: block; color: #d1d5db; text-decoration: none; padding: .55rem .75rem; border-radius: 8px; margin-bottom: .15rem; font-size: .93rem; }
+.nav a:hover { background: #1f2937; color: #fff; }
+.nav a.active { background: #1f2937; color: var(--gold); font-weight: 700; }
+.nav a.sub { padding-right: 1.6rem; font-size: .85rem; color: #9ca3af; }
+.nav a.sub:hover { color: #fff; }
+.side-foot { margin-top: auto; padding-top: 1rem; }
+.side-foot button { width: 100%; background: transparent; border: 1px solid #374151; color: #d1d5db; padding: .6rem; border-radius: 8px; cursor: pointer; font-size: .9rem; }
+/* ---- Main ---- */
+.main { flex: 1; padding: 1.5rem; max-width: 1080px; width: 100%; }
+.header h1 { font-size: 1.5rem; margin-bottom: .2rem; }
+.header p { color: var(--muted); margin-bottom: 1.25rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; }
+.stat .label { font-size: .82rem; color: var(--muted); margin-bottom: .3rem; }
+.stat .value { font-size: 1.55rem; font-weight: 800; }
+.stat .value.gold { color: #92690e; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; }
+.card h2 { font-size: 1.05rem; margin-bottom: .9rem; }
+.card h2 a { font-size: .82rem; font-weight: 400; color: #1d4ed8; text-decoration: none; margin-right: .5rem; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: right; padding: .55rem .4rem; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; font-size: .76rem; }
+tr:last-child td { border-bottom: 0; }
+.badge { display: inline-block; padding: .18rem .6rem; border-radius: 999px; font-size: .76rem; font-weight: 700; white-space: nowrap; }
+.status-pending { background: #fef3c7; color: #b45309; }
+.status-confirmed { background: #dbeafe; color: #1d4ed8; }
+.status-preparing { background: #ffedd5; color: #c2410c; }
+.status-ready { background: #dcfce7; color: #15803d; }
+.status-delivered { background: #f3f4f6; color: #4b5563; }
+.status-cancelled { background: #fee2e2; color: #b91c1c; }
+.badge.plan { background: #fef9e7; color: #92690e; border: 1px solid #f0dfa0; }
+.resto { border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem; background: var(--card); }
+.resto h3 { margin-bottom: .3rem; font-size: 1.02rem; }
+.resto .meta { font-size: .85rem; color: var(--muted); margin-bottom: .6rem; }
+.resto .links a { margin-left: .8rem; color: #1d4ed8; text-decoration: none; font-size: .88rem; }
+.resto .links a:hover { text-decoration: underline; }
+.tables { margin-top: .6rem; font-size: .85rem; color: var(--muted); }
+.tables a { color: #1d4ed8; text-decoration: none; }
+.btn { display: inline-block; background: var(--navy); color: #fff !important; padding: .6rem 1.1rem; border-radius: 8px; text-decoration: none; font-size: .9rem; margin-bottom: 1.25rem; }
+.empty { color: var(--muted); padding: 1rem 0; }
+@media (max-width: 760px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; padding: .9rem; }
+  .brand { margin-bottom: .8rem; }
+  .nav { display: flex; overflow-x: auto; gap: .2rem; padding-bottom: .3rem; }
+  .nav-title, .nav a.sub { display: none; }
+  .nav a { white-space: nowrap; margin-bottom: 0; }
+  .side-foot { display: none; }
+  .main { padding: 1rem; }
+  table { font-size: .8rem; }
+}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">TAP<span>Business</span></div>
+  <nav class="nav">
+    <a href="{% url 'accounts:dashboard' %}" class="active">📊 لوحة التحكم</a>
+    {% for m in memberships %}
+      <div class="nav-title">{{ m.restaurant.name }}</div>
+      <a class="sub" href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
+      <a class="sub" href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض المنيو</a>
+      <a class="sub" href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ تحميل QR</a>
     {% endfor %}
-</ul>
-<form method="post" action="{% url 'accounts:logout' %}">
-    {% csrf_token %}
-    <button type="submit">Se déconnecter</button>
-</form>
-{% endblock %}
+    <div class="nav-title">عام</div>
+    <a href="{% url 'restaurants:create' %}">＋ مطعم جديد</a>
+  </nav>
+  <div class="side-foot">
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit">تسجيل الخروج</button>
+    </form>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header">
+    <h1>لوحة التحكم</h1>
+    <p>مرحباً {{ user.username }}، هادي نظرة على النشاط ديال المطعم.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">🕐 طلبات اليوم</div>
+      <div class="value">{{ stats.today_count }}</div>
+    </div>
+    <div class="stat">
+      <div class="label">💰 مبيعات اليوم</div>
+      <div class="value gold">{{ stats.today_total }} <small style="font-size:.9rem">MAD</small></div>
+    </div>
+    <div class="stat">
+      <div class="label">🍽 الأطباق المنشورة</div>
+      <div class="value">{{ stats.dishes_count }}</div>
+    </div>
+    <div class="stat">
+      <div class="label">⏳ طلبات معلقة</div>
+      <div class="value">{{ stats.pending_count }}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>آخر الطلبات
+      {% if memberships|length == 1 %}
+        {% with m=memberships.0 %}
+          <a href="{% url 'orders:owner_orders' m.restaurant.slug %}">عرض الكل ←</a>
+        {% endwith %}
+      {% endif %}
+    </h2>
+    {% if recent_orders %}
+    <table>
+      <thead>
+        <tr><th>رقم</th><th>المطعم</th><th>الزبون</th><th>المبلغ</th><th>الحالة</th><th>الوقت</th></tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.restaurant.name }}</td>
+          <td>{{ order.customer_name }}</td>
+          <td>{{ order.total }} MAD</td>
+          <td><span class="badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td>{{ order.created_at|date:"d/m H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">ما كاين حتى طلب بعد.</p>
+    {% endif %}
+  </div>
+
+  <h2 style="margin-bottom:.8rem">مطاعمي</h2>
+  <a class="btn" href="{% url 'restaurants:create' %}">＋ أنشئ مطعماً جديداً</a>
+  {% for m in memberships %}
+  <div class="resto">
+    <h3>{{ m.restaurant.name }}</h3>
+    <div class="meta">
+      {{ m.get_role_display }}
+      {% if m.restaurant.subscription %}
+        <span class="badge plan">💳 {{ m.restaurant.subscription.plan.name }} ({{ m.restaurant.subscription.get_status_display }})</span>
+      {% else %}
+        <span class="badge plan">بلا اشتراك</span>
+      {% endif %}
+    </div>
+    <div class="links">
+      <a href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
+      <a href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 المنيو</a>
+      <a href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ QR المنيو</a>
+    </div>
+    {% if m.restaurant.tables.all %}
+    <div class="tables">
+      🪑
+      {% for table in m.restaurant.tables.all %}
+        {% if table.is_active %}
+          طاولة {{ table.number }}
+          (<a href="{% url 'tables:table_qr' m.restaurant.slug table.id %}">QR</a>){% if not forloop.last %}،{% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% empty %}
+  <p class="empty">ما عندك حتى مطعم بعد — أنشئ الأول ديالك.</p>
+  {% endfor %}
+</main>
+</body>
+</html>
