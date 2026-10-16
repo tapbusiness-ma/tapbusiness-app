@@ -8,5 +8,6 @@
     {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
     <button type="submit">Se connecter</button>
 </form>
+<p><a href="{% url 'accounts:password_reset' %}">Mot de passe oublié ?</a></p>
 <p>Pas de compte ? <a href="{% url 'accounts:signup' %}">Créer un compte</a></p>
 {% endblock %}
