@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Mon espace — TAPBusiness{% endblock %}
 {% block content %}
+<p><a href="{% url 'restaurants:create' %}">＋ أنشئ مطعماً جديداً</a></p>
 <h1>Bienvenue {{ user.username }}</h1>
 <h2>Mes restaurants</h2>
 <ul>
