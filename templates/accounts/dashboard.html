@@ -82,6 +82,7 @@ tr:last-child td { border-bottom: 0; }
     {% for m in memberships %}
       <div class="nav-title">{{ m.restaurant.name }}</div>
       <a class="sub" href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
+      <a class="sub" href="{% url 'menu:owner_menu' m.restaurant.slug %}">🍽 إدارة المنيو</a>
       <a class="sub" href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض المنيو</a>
       <a class="sub" href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ تحميل QR</a>
     {% endfor %}
@@ -167,7 +168,8 @@ tr:last-child td { border-bottom: 0; }
     </div>
     <div class="links">
       <a href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
-      <a href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 المنيو</a>
+      <a href="{% url 'menu:owner_menu' m.restaurant.slug %}">🍽 إدارة المنيو</a>
+      <a href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض</a>
       <a href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ QR المنيو</a>
     </div>
     {% if m.restaurant.tables.all %}

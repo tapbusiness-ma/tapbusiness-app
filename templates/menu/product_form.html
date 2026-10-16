@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — {{ restaurant.name }} — TAPBusiness</title>
+<style>
+:root {
+  --navy: #111827;
+  --gold: #D4AF37;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+.sidebar { width: 248px; background: var(--navy); color: #d1d5db; padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; }
+.brand { color: #fff; font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; }
+.brand span { color: var(--gold); }
+.nav-title { font-size: .72rem; color: #9ca3af; margin: 1rem 0 .4rem; }
+.nav a { display: block; color: #d1d5db; text-decoration: none; padding: .55rem .75rem; border-radius: 8px; margin-bottom: .15rem; font-size: .93rem; }
+.nav a:hover { background: #1f2937; color: #fff; }
+.nav a.active { background: #1f2937; color: var(--gold); font-weight: 700; }
+.nav a.sub { padding-right: 1.6rem; font-size: .85rem; color: #9ca3af; }
+.nav a.sub:hover { color: #fff; }
+.side-foot { margin-top: auto; padding-top: 1rem; }
+.side-foot button { width: 100%; background: transparent; border: 1px solid #374151; color: #d1d5db; padding: .6rem; border-radius: 8px; cursor: pointer; font-size: .9rem; }
+.main { flex: 1; padding: 1.5rem; max-width: 720px; width: 100%; }
+.main h1 { font-size: 1.5rem; margin-bottom: 1.25rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; }
+.card p { margin-bottom: .9rem; }
+.card label { display: block; font-size: .88rem; font-weight: 600; margin-bottom: .3rem; }
+.card input[type=text], .card input[type=number], .card textarea, .card select { width: 100%; padding: .6rem .7rem; border: 1px solid var(--border); border-radius: 8px; font-size: .95rem; font-family: inherit; }
+.card input[type=file] { font-size: .9rem; }
+.card input[type=checkbox] { width: auto; }
+.card .helptext { font-size: .8rem; color: var(--muted); }
+.card .errorlist { color: #b91c1c; font-size: .85rem; list-style: none; margin-bottom: .3rem; }
+.btn { display: inline-block; background: var(--navy); color: #fff; padding: .65rem 1.4rem; border-radius: 8px; border: 0; cursor: pointer; font-size: .95rem; font-weight: 700; }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.back { display: inline-block; margin-top: 1rem; color: #1d4ed8; text-decoration: none; font-size: .9rem; }
+@media (max-width: 760px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; padding: .9rem; }
+  .brand { margin-bottom: .8rem; }
+  .nav { display: flex; overflow-x: auto; gap: .2rem; padding-bottom: .3rem; }
+  .nav-title, .nav a.sub { display: none; }
+  .nav a { white-space: nowrap; margin-bottom: 0; }
+  .side-foot { display: none; }
+  .main { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">TAP<span>Business</span></div>
+  <nav class="nav">
+    <a href="{% url 'accounts:dashboard' %}">📊 لوحة التحكم</a>
+    {% for m in memberships %}
+      <div class="nav-title">{{ m.restaurant.name }}</div>
+      <a class="sub" href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
+      <a class="sub {% if m.restaurant.slug == restaurant.slug %}active{% endif %}" href="{% url 'menu:owner_menu' m.restaurant.slug %}">🍽 إدارة المنيو</a>
+      <a class="sub" href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض المنيو</a>
+    {% endfor %}
+    <div class="nav-title">عام</div>
+    <a href="{% url 'restaurants:create' %}">＋ مطعم جديد</a>
+  </nav>
+  <div class="side-foot">
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit">تسجيل الخروج</button>
+    </form>
+  </div>
+</aside>
+
+<main class="main">
+  <h1>{{ title }}</h1>
+  <div class="card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-gold" type="submit">حفظ</button>
+    </form>
+  </div>
+  <a class="back" href="{% url 'menu:owner_menu' restaurant.slug %}">→ رجوع لإدارة المنيو</a>
+</main>
+</body>
+</html>
