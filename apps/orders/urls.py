@@ -18,4 +18,14 @@ urlpatterns = [
         views.order_success,
         name="order_success",
     ),
+    path(
+        "dashboard/<slug:slug>/orders/",
+        views.owner_orders,
+        name="owner_orders",
+    ),
+    path(
+        "dashboard/<slug:slug>/orders/<int:order_id>/status/",
+        views.owner_order_status,
+        name="owner_order_status",
+    ),
 ]

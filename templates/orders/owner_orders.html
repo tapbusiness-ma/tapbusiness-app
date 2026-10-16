@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}الطلبات — {{ restaurant.name }}{% endblock %}
+{% block content %}
+<h1>📦 طلبات {{ restaurant.name }}</h1>
+<p>
+    🕐 طلبات اليوم: <strong>{{ stats.today_count }}</strong> |
+    💰 مداخيل اليوم: <strong>{{ stats.today_total }} DH</strong> |
+    ⏳ قيد الانتظار: <strong>{{ stats.pending_count }}</strong>
+</p>
+<p>
+    تصفية:
+    <a href="{% url 'orders:owner_orders' restaurant.slug %}">الكل</a>
+    {% for value, label in status_choices %}
+    | <a href="{% url 'orders:owner_orders' restaurant.slug %}?status={{ value }}">{{ label }}</a>
+    {% endfor %}
+</p>
+{% for order in orders %}
+<div style="border:1px solid #ddd; padding:1rem; margin-bottom:1rem;">
+    <p><strong>طلب #{{ order.id }}</strong> — {{ order.get_status_display }}
+        — {{ order.created_at|date:"d/m/Y H:i" }}</p>
+    <p>👤 {{ order.customer_name }} — 📞 {{ order.customer_phone }}</p>
+    <p>
+        {% if order.order_type == "table" %}🪑 طاولة {{ order.table_number }}
+        {% else %}🛵 توصيل{% if order.address %} — {{ order.address }}{% endif %}{% endif %}
+    </p>
+    <ul>
+        {% for item in order.items.all %}
+        <li>{{ item.product_name }} × {{ item.quantity }} = {{ item.line_total }} DH</li>
+        {% endfor %}
+    </ul>
+    <p><strong>المجموع: {{ order.total }} DH</strong></p>
+    <form method="post" action="{% url 'orders:owner_order_status' restaurant.slug order.id %}">
+        {% csrf_token %}
+        <select name="status">
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">بدل الحالة</button>
+    </form>
+</div>
+{% empty %}
+<p>ما كاين حتى طلب.</p>
+{% endfor %}
+<p><a href="{% url 'accounts:dashboard' %}">رجوع للوحة التحكم</a></p>
+{% endblock %}

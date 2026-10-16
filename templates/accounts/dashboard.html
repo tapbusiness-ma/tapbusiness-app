@@ -9,7 +9,8 @@
         <li>
             {{ membership.restaurant.name }} — {{ membership.get_role_display }}
             <a href="{% url 'menu:public_menu' membership.restaurant.slug %}">Voir le menu</a> |
-            <a href="{% url 'menu:menu_qr' membership.restaurant.slug %}">Télécharger le QR</a>
+            <a href="{% url 'menu:menu_qr' membership.restaurant.slug %}">Télécharger le QR</a> |
+            <a href="{% url 'orders:owner_orders' membership.restaurant.slug %}">📦 الطلبات</a>
             <br>💳 الباقة:
             {% if membership.restaurant.subscription %}
                 {{ membership.restaurant.subscription.plan.name }}
