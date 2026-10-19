@@ -45,6 +45,26 @@ class TableQrTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_table_qr_download_is_png(self):
+        from django.contrib.auth.models import User
+
+        from apps.restaurants.models import Membership
+
+        # مجهول → تحويل لصفحة الدخول (تحميل الـQR خاص بمول المطعم)
+        anon = self.client.get(
+            reverse(
+                "tables:table_qr",
+                args=[self.restaurant.slug, self.table.id],
+            )
+        )
+        self.assertEqual(anon.status_code, 302)
+
+        user = User.objects.create_user("owner", password="x")
+        Membership.objects.create(
+            user=user,
+            restaurant=self.restaurant,
+            role=Membership.Roles.OWNER,
+        )
+        self.client.force_login(user)
         response = self.client.get(
             reverse(
                 "tables:table_qr",

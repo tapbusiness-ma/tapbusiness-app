@@ -64,6 +64,28 @@ class Order(models.Model):
     def __str__(self):
         return f"طلب #{self.id} — {self.restaurant.name} ({self.total} DH)"
 
+    # مسار الحالات المسموح: خطي، والإلغاء ممكن من أي مرحلة قبل التوصيل
+    ALLOWED_TRANSITIONS = {
+        Status.PENDING: {Status.CONFIRMED, Status.CANCELLED},
+        Status.CONFIRMED: {Status.PREPARING, Status.CANCELLED},
+        Status.PREPARING: {Status.READY, Status.CANCELLED},
+        Status.READY: {Status.DELIVERED, Status.CANCELLED},
+        Status.DELIVERED: set(),
+        Status.CANCELLED: set(),
+    }
+
+    def can_transition_to(self, new_status):
+        """واش الانتقال من الحالة الحالية للحالة الجديدة مسموح؟"""
+        return new_status in self.ALLOWED_TRANSITIONS.get(self.status, set())
+
+    def get_allowed_transitions(self):
+        """لائحة (value, label) ديال الحالات المسموح الانتقال ليها."""
+        return [
+            (s.value, s.label)
+            for s in self.Status
+            if self.can_transition_to(s.value)
+        ]
+
 
 class OrderItem(models.Model):
     """سطر فالطلب — نسخة من الثمن وقت التأكيد (snapshot)."""

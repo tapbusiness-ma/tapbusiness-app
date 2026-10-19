@@ -7,9 +7,13 @@ class Cart:
         self.key = f"cart_{restaurant.id}"
         self.data = self.session.get(self.key, {})
 
+    # حد أقصى للكمية لكل منتج — حماية من الطلبات غير المعقولة
+    MAX_QTY_PER_PRODUCT = 20
+
     def add(self, product_id, quantity=1):
         product_key = str(product_id)
-        self.data[product_key] = self.data.get(product_key, 0) + quantity
+        new_qty = self.data.get(product_key, 0) + quantity
+        self.data[product_key] = min(new_qty, self.MAX_QTY_PER_PRODUCT)
         self.save()
 
     def remove(self, product_id):

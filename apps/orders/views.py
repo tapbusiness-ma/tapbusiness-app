@@ -5,6 +5,8 @@ from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.views.decorators.http import require_POST
 
 from apps.menu.models import Product
@@ -58,8 +60,11 @@ def checkout(request, slug):
                     (line["product"].price * line["quantity"] for line in lines),
                     start=Decimal("0.00"),
                 )
-                delivery_fee = restaurant.delivery_fee
                 table_number = request.session.get(f"table_{restaurant.id}", "")
+                # طلب الطاولة: بلا مصاريف التوصيل
+                delivery_fee = (
+                    Decimal("0.00") if table_number else restaurant.delivery_fee
+                )
                 order = Order.objects.create(
                     restaurant=restaurant,
                     order_type=(
@@ -135,9 +140,24 @@ def owner_orders(request, slug):
     """لوحة الطلبات ديال مول المطعم: الإحصائيات + اللائحة + تغيير الحالة."""
     restaurant = _get_owned_restaurant(request, slug)
     status_filter = request.GET.get("status", "")
+    query = request.GET.get("q", "").strip()
     orders = restaurant.orders.prefetch_related("items").order_by("-created_at")
     if status_filter in dict(Order.Status.choices):
         orders = orders.filter(status=status_filter)
+    if query:
+        if query.isdigit():
+            orders = orders.filter(
+                Q(id=int(query))
+                | Q(customer_phone__icontains=query)
+                | Q(customer_name__icontains=query)
+            )
+        else:
+            orders = orders.filter(
+                Q(customer_phone__icontains=query)
+                | Q(customer_name__icontains=query)
+            )
+    paginator = Paginator(orders, 20)
+    page_obj = paginator.get_page(request.GET.get("page"))
     today = timezone.localdate()
     stats = {
         "pending_count": restaurant.orders.filter(
@@ -163,11 +183,13 @@ def owner_orders(request, slug):
         "orders/owner_orders.html",
         {
             "restaurant": restaurant,
-            "orders": orders,
+            "orders": page_obj,
+            "page_obj": page_obj,
             "stats": stats,
             "status_filter": status_filter,
             "status_choices": Order.Status.choices,
             "memberships": memberships,
+            "query": query,
         },
     )
 
@@ -179,7 +201,9 @@ def owner_order_status(request, slug, order_id):
     restaurant = _get_owned_restaurant(request, slug)
     order = get_object_or_404(Order, id=order_id, restaurant=restaurant)
     new_status = request.POST.get("status")
-    if new_status in dict(Order.Status.choices):
+    if new_status in dict(Order.Status.choices) and order.can_transition_to(
+        new_status
+    ):
         order.status = new_status
         order.save(update_fields=["status"])
     return redirect("orders:owner_orders", slug=slug)

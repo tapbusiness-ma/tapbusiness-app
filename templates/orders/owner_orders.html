@@ -53,6 +53,11 @@ body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; ba
 .status-ready { background: #dcfce7; color: #15803d; }
 .status-delivered { background: #f3f4f6; color: #4b5563; }
 .status-cancelled { background: #fee2e2; color: #b91c1c; }
+.search { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.search input { flex: 1; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: 8px; font-size: .9rem; }
+.search button { background: var(--navy); color: #fff; border: 0; border-radius: 8px; padding: .55rem 1.1rem; cursor: pointer; font-size: .9rem; }
+.pages { display: flex; gap: 1rem; align-items: center; justify-content: center; margin-top: 1.25rem; font-size: .9rem; }
+.pages a { color: #1d4ed8; text-decoration: none; }
 .empty { color: var(--muted); background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
 @media (max-width: 760px) {
   body { flex-direction: column; }
@@ -108,10 +113,16 @@ body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; ba
     </div>
   </div>
 
+  <form method="get" action="{% url 'orders:owner_orders' restaurant.slug %}" class="search">
+    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+    <input type="search" name="q" value="{{ query }}" placeholder="بحث: رقم الطلب، الاسم، الهاتف…">
+    <button type="submit">بحث</button>
+  </form>
+
   <div class="filters">
-    <a href="{% url 'orders:owner_orders' restaurant.slug %}" class="{% if not status_filter %}on{% endif %}">الكل</a>
+    <a href="{% url 'orders:owner_orders' restaurant.slug %}{% if query %}?q={{ query }}{% endif %}" class="{% if not status_filter %}on{% endif %}">الكل</a>
     {% for value, label in status_choices %}
-    <a href="{% url 'orders:owner_orders' restaurant.slug %}?status={{ value }}" class="{% if status_filter == value %}on{% endif %}">{{ label }}</a>
+    <a href="{% url 'orders:owner_orders' restaurant.slug %}?status={{ value }}{% if query %}&q={{ query }}{% endif %}" class="{% if status_filter == value %}on{% endif %}">{{ label }}</a>
     {% endfor %}
   </div>
 
@@ -133,19 +144,35 @@ body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; ba
       {% endfor %}
     </ul>
     <div class="total">المجموع: {{ order.total }} DH</div>
+    {% with allowed=order.get_allowed_transitions %}
+    {% if allowed %}
     <form method="post" action="{% url 'orders:owner_order_status' restaurant.slug order.id %}">
       {% csrf_token %}
       <select name="status">
-        {% for value, label in status_choices %}
-        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+        {% for value, label in allowed %}
+        <option value="{{ value }}">{{ label }}</option>
         {% endfor %}
       </select>
       <button type="submit">بدل الحالة</button>
     </form>
+    {% endif %}
+    {% endwith %}
   </div>
   {% empty %}
   <div class="empty">ما كاين حتى طلب بعد.</div>
   {% endfor %}
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pages">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if query %}&q={{ query }}{% endif %}">→ السابق</a>
+    {% endif %}
+    <span>صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if query %}&q={{ query }}{% endif %}">التالي ←</a>
+    {% endif %}
+  </div>
+  {% endif %}
 </main>
 </body>
 </html>
