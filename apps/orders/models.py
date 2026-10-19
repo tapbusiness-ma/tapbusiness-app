@@ -1,7 +1,14 @@
+import secrets
+
 from django.db import models
 
 from apps.menu.models import Product
 from apps.restaurants.models import Restaurant
+
+
+def generate_token():
+    """رمز عشوائي آمن لرابط تأكيد الطلب."""
+    return secrets.token_urlsafe(32)
 
 
 class Order(models.Model):
@@ -45,6 +52,9 @@ class Order(models.Model):
         "المجموع", max_digits=10, decimal_places=2, default=0
     )
     created_at = models.DateTimeField("تاريخ الطلب", auto_now_add=True)
+    token = models.CharField(
+        "رمز التأكيد", max_length=64, unique=True, default=generate_token
+    )
 
     class Meta:
         verbose_name = "طلب"

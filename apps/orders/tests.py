@@ -80,7 +80,7 @@ class CheckoutFlowTests(TestCase):
             checkout_response,
             reverse(
                 "orders:order_success",
-                args=[self.restaurant.slug, order.id],
+                args=[self.restaurant.slug, order.id, order.token],
             ),
         )
         self.assertEqual(order.subtotal, Decimal("35.00"))
@@ -90,11 +90,23 @@ class CheckoutFlowTests(TestCase):
         success_response = self.client.get(
             reverse(
                 "orders:order_success",
-                args=[self.restaurant.slug, order.id],
+                args=[self.restaurant.slug, order.id, order.token],
             )
         )
         self.assertEqual(success_response.status_code, 200)
         self.assertContains(success_response, "0612345678")
+        # بلا الرمز أولا برمز غالط → 404 (حماية بيانات الزبون)
+        no_token = self.client.get(
+            f"/m/{self.restaurant.slug}/order/{order.id}/ok/"
+        )
+        self.assertEqual(no_token.status_code, 404)
+        bad_token = self.client.get(
+            reverse(
+                "orders:order_success",
+                args=[self.restaurant.slug, order.id, "رمز-غالط"],
+            )
+        )
+        self.assertEqual(bad_token.status_code, 404)
         self.assertEqual(self.client.session.get(f"cart_{self.restaurant.id}"), None)
 
     def test_adding_to_cart_requires_post(self):

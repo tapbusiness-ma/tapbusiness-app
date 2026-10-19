@@ -6,6 +6,8 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 import dj_database_url
 from dotenv import load_dotenv
 
@@ -99,6 +101,27 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:dashboard"
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+
+# --- حماية الإنتاج ---
+# فالإنتاج (DEBUG=False) كنرفضو التشغيل إلا كان المفتاح ضعيفاً.
+if not DEBUG:
+    _weak_markers = ("django-insecure", "change-me", "changeme")
+    if (
+        not SECRET_KEY
+        or len(SECRET_KEY) < 50
+        or any(m in SECRET_KEY.lower() for m in _weak_markers)
+    ):
+        raise ImproperlyConfigured(
+            "SECRET_KEY غير آمن: عيّن مفتاحاً قوياً وفريداً (50 حرفاً على الأقل) "
+            "فـ SECRET_KEY قبل التشغيل فالإنتاج."
+        )
+    if "*" in ALLOWED_HOSTS:
+        raise ImproperlyConfigured("ALLOWED_HOSTS ما خاصوش يكون '*' فالإنتاج.")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+
 
 # --- البريد الإلكتروني (استرجاع كلمة السر) ---
 # القيم كتجي من متغيرات البيئة. مثال Gmail:

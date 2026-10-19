@@ -89,7 +89,10 @@ def checkout(request, slug):
                 )
             cart.clear()
             return redirect(
-                "orders:order_success", slug=slug, order_id=order.id
+                "orders:order_success",
+                slug=slug,
+                order_id=order.id,
+                token=order.token,
             )
     else:
         form = CheckoutForm()
@@ -101,9 +104,12 @@ def checkout(request, slug):
     )
 
 
-def order_success(request, slug, order_id):
+def order_success(request, slug, order_id, token):
+    """صفحة تأكيد الطلب — محمية برمز سري خاص بالطلب."""
     restaurant = _get_restaurant(slug)
-    order = get_object_or_404(Order, id=order_id, restaurant=restaurant)
+    order = get_object_or_404(
+        Order, id=order_id, restaurant=restaurant, token=token
+    )
     return render(
         request,
         "orders/success.html",
