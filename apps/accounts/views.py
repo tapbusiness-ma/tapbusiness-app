@@ -22,7 +22,8 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            # كنحددو الـbackend صراحة حيث كاينين جوج (Axes + ModelBackend)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("accounts:dashboard")
     else:
         form = UserCreationForm()

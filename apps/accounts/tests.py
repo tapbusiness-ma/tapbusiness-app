@@ -43,3 +43,39 @@ class AccountsViewsTests(TestCase):
 
         self.assertContains(response, "Visible")
         self.assertNotContains(response, "Hidden")
+
+
+class LoginLockoutTests(TestCase):
+    """حماية django-axes: بعد 5 محاولات فاشلة، حتى كلمة السر الصحيحة تتحظر."""
+
+    def setUp(self):
+        get_user_model().objects.create_user(
+            username="victim", **{"password": "correct-password-42"}
+        )
+        self.login_url = reverse("accounts:login")
+
+    def test_lockout_after_five_failed_attempts(self):
+        for _ in range(5):
+            self.client.post(
+                self.login_url, {"username": "victim", "password": "wrong-pass"}
+            )
+
+        # المحاولة السادسة بكلمة سر صحيحة: خاصها تتحظر
+        response = self.client.post(
+            self.login_url,
+            {"username": "victim", "password": "correct-password-42"},
+        )
+        self.assertEqual(response.status_code, 429)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_normal_login_still_works(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": "victim", "password": "correct-password-42"},
+        )
+        self.assertRedirects(
+            response,
+            reverse("accounts:dashboard"),
+            fetch_redirect_response=False,
+        )
+        self.assertIn("_auth_user_id", self.client.session)

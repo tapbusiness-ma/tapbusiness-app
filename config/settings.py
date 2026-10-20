@@ -4,6 +4,7 @@
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "apps.orders",
     "apps.tables",
     "apps.subscriptions",
+    "axes",  # حماية تسجيل الدخول من تخمين كلمة السر
 ]
 
 MIDDLEWARE = [
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "axes.middleware.AxesMiddleware",  # حظر المحاولات الفاشلة المتكررة
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -101,6 +104,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:dashboard"
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+# Axes أولاً باش يوقف المحاولات المحظورة، ومن بعد ModelBackend ديال Django
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# --- حماية تسجيل الدخول (django-axes) ---
+# 5 محاولات فاشلة بنفس المستخدم ومن نفس IP = حظر مؤقت لمدة ساعة
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(hours=1)
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_RESET_ON_SUCCESS = True
+# التطبيق خدام وراء بروكسي واحد (PythonAnywhere): IP الحقيقي كيجي من X-Forwarded-For
+AXES_IPWARE_PROXY_COUNT = 1
 
 
 # --- حماية الإنتاج ---
