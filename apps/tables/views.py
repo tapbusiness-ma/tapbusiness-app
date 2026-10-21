@@ -28,7 +28,7 @@ def table_menu(request, slug, token):
 @login_required
 def table_qr(request, slug, table_id):
     """تحميل QR code ديال طاولة (للطباعة) — غير لمول المطعم."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     table = get_object_or_404(
         Table,
         id=table_id,
@@ -46,12 +46,11 @@ def table_qr(request, slug, table_id):
         f'attachment; filename="qr-table-{table.number}.png"'
     )
     return response
-def _get_owned_restaurant(request, slug):
-    """يرجع المطعم إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
+def _get_member_restaurant(request, slug):
+    """يرجع المطعم (أي حالة) إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
     return get_object_or_404(
         Restaurant.objects.filter(
             slug=slug,
-            is_active=True,
             memberships__user=request.user,
             memberships__role__in=[
                 Membership.Roles.OWNER,
@@ -64,7 +63,7 @@ def _get_owned_restaurant(request, slug):
 @login_required
 def owner_tables(request, slug):
     """إدارة الطاولات ديال مول المطعم."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     ctx = {
         "restaurant": restaurant,
         "tables": restaurant.tables.all(),
@@ -79,7 +78,7 @@ def owner_tables(request, slug):
 @login_required
 @require_POST
 def owner_table_add(request, slug):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     form = TableForm(request.POST)
     form.instance.restaurant = restaurant
     number = (request.POST.get("number") or "").strip()
@@ -105,7 +104,7 @@ def owner_table_add(request, slug):
 @login_required
 @require_POST
 def owner_table_delete(request, slug, table_id):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     table = get_object_or_404(Table, id=table_id, restaurant=restaurant)
     table.delete()
     return redirect("tables:owner_tables", slug=slug)
@@ -114,7 +113,7 @@ def owner_table_delete(request, slug, table_id):
 @login_required
 @require_POST
 def owner_table_toggle(request, slug, table_id):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     table = get_object_or_404(Table, id=table_id, restaurant=restaurant)
     table.is_active = not table.is_active
     table.save(update_fields=["is_active"])

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}مطعم قيد المراجعة — TAPBusiness{% endblock %}
+{% block content %}
+<h1>⏳ مطعمك «{{ restaurant.name }}» قيد المراجعة</h1>
+<p>توصلنا بطلب إنشاء المطعم ديالك. تفعيل المطاعم كيتم بموافقة صريحة من مالك منصة TAPBusiness — المنيو العمومي والطلبات غادي يبداو غير من بعد التفعيل.</p>
+<p><strong>شنو تقدر دير دابا:</strong> التحضير مفتوح ليك — بني المنيو ديالك (التصنيفات والأطباق والصور) وزيّد الطاولات والإعدادات، باش نهار يتفعّل المطعم يكون كلشي واجد.</p>
+<p>
+    <a href="{% url 'menu:owner_menu' restaurant.slug %}">🍽 إدارة المنيو</a> ·
+    <a href="{% url 'tables:owner_tables' restaurant.slug %}">🪑 الطاولات</a> ·
+    <a href="{% url 'restaurant_settings' restaurant.slug %}">⚙ الإعدادات</a>
+</p>
+<p>باش تسريع الموافقة، تواصل معانا فواتساب: <a href="https://wa.me/212720163682">0720163682</a></p>
+<p><a href="{% url 'accounts:dashboard' %}">رجوع للوحة التحكم</a></p>
+{% endblock %}

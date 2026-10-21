@@ -120,12 +120,11 @@ def order_success(request, slug, order_id, token):
         "orders/success.html",
         {"restaurant": restaurant, "order": order},
     )
-def _get_owned_restaurant(request, slug):
-    """يرجع المطعم إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
+def _get_member_restaurant(request, slug):
+    """يرجع المطعم (أي حالة) إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
     return get_object_or_404(
         Restaurant.objects.filter(
             slug=slug,
-            is_active=True,
             memberships__user=request.user,
             memberships__role__in=[
                 Membership.Roles.OWNER,
@@ -138,7 +137,10 @@ def _get_owned_restaurant(request, slug):
 @login_required
 def owner_orders(request, slug):
     """لوحة الطلبات ديال مول المطعم: الإحصائيات + اللائحة + تغيير الحالة."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
+    if not restaurant.is_active:
+        # مطعم قيد المراجعة أو معلّق: العمليات موقوفة حتى التفعيل
+        return redirect("restaurant_pending", slug=slug)
     status_filter = request.GET.get("status", "")
     query = request.GET.get("q", "").strip()
     orders = restaurant.orders.prefetch_related("items").order_by("-created_at")
@@ -198,7 +200,9 @@ def owner_orders(request, slug):
 @require_POST
 def owner_order_status(request, slug, order_id):
     """تبديل حالة الطلب من طرف مول المطعم."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
+    if not restaurant.is_active:
+        return redirect("restaurant_pending", slug=slug)
     order = get_object_or_404(Order, id=order_id, restaurant=restaurant)
     new_status = request.POST.get("status")
     if new_status in dict(Order.Status.choices) and order.can_transition_to(

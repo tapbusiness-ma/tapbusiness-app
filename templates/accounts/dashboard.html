@@ -80,13 +80,17 @@ tr:last-child td { border-bottom: 0; }
   <nav class="nav">
     <a href="{% url 'accounts:dashboard' %}" class="active">📊 لوحة التحكم</a>
     {% for m in memberships %}
-      <div class="nav-title">{{ m.restaurant.name }}</div>
+      <div class="nav-title">{{ m.restaurant.name }}{% if not m.restaurant.is_active %} ⏳{% endif %}</div>
       <a class="sub" href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
       <a class="sub" href="{% url 'menu:owner_menu' m.restaurant.slug %}">🍽 إدارة المنيو</a>
       <a class="sub" href="{% url 'tables:owner_tables' m.restaurant.slug %}">🪑 الطاولات</a>
       <a class="sub" href="{% url 'restaurant_settings' m.restaurant.slug %}">⚙ الإعدادات</a>
+      {% if m.restaurant.is_active %}
       <a class="sub" href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض المنيو</a>
       <a class="sub" href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ تحميل QR</a>
+      {% else %}
+      <a class="sub" href="{% url 'restaurant_pending' m.restaurant.slug %}">⏳ قيد المراجعة</a>
+      {% endif %}
     {% endfor %}
     <div class="nav-title">عام</div>
     <a href="{% url 'restaurants:create' %}">＋ مطعم جديد</a>
@@ -167,14 +171,21 @@ tr:last-child td { border-bottom: 0; }
       {% else %}
         <span class="badge plan">بلا اشتراك</span>
       {% endif %}
+      {% if not m.restaurant.is_active %}
+        <span class="badge">⏳ قيد المراجعة — التفعيل عند مالك المنصة</span>
+      {% endif %}
     </div>
     <div class="links">
       <a href="{% url 'orders:owner_orders' m.restaurant.slug %}">📦 الطلبات</a>
       <a href="{% url 'menu:owner_menu' m.restaurant.slug %}">🍽 المنيو</a>
       <a href="{% url 'tables:owner_tables' m.restaurant.slug %}">🪑 الطاولات</a>
       <a href="{% url 'restaurant_settings' m.restaurant.slug %}">⚙ الإعدادات</a>
+      {% if m.restaurant.is_active %}
       <a href="{% url 'menu:public_menu' m.restaurant.slug %}">👁 عرض</a>
       <a href="{% url 'menu:menu_qr' m.restaurant.slug %}">⬇ QR المنيو</a>
+      {% else %}
+      <a href="{% url 'restaurant_pending' m.restaurant.slug %}">⏳ حالة المراجعة</a>
+      {% endif %}
     </div>
     {% if m.restaurant.tables.all %}
     <div class="tables">

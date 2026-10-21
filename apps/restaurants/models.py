@@ -17,7 +17,8 @@ class Restaurant(models.Model):
     delivery_fee = models.DecimalField(
         "مصاريف التوصيل (درهم)", max_digits=8, decimal_places=2, default=0
     )
-    is_active = models.BooleanField("نشط", default=True)
+    # مطعم جديد كيبقى غير نشط (قيد المراجعة) حتى يفعّلو مالك المنصة صراحة
+    is_active = models.BooleanField("نشط", default=False)
     created_at = models.DateTimeField("تاريخ الإنشاء", auto_now_add=True)
 
     class Meta:

@@ -15,6 +15,11 @@ urlpatterns = [
         restaurants_views.restaurant_settings,
         name="restaurant_settings",
     ),
+    path(
+        "dashboard/<slug:slug>/pending/",
+        restaurants_views.restaurant_pending,
+        name="restaurant_pending",
+    ),
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
     path("restaurants/", include("apps.restaurants.urls")),

@@ -52,12 +52,11 @@ def menu_qr(request, slug):
         f'attachment; filename="qr-{restaurant.slug}.png"'
     )
     return response
-def _get_owned_restaurant(request, slug):
-    """يرجع المطعم إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
+def _get_member_restaurant(request, slug):
+    """يرجع المطعم (أي حالة) إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
     return get_object_or_404(
         Restaurant.objects.filter(
             slug=slug,
-            is_active=True,
             memberships__user=request.user,
             memberships__role__in=[
                 Membership.Roles.OWNER,
@@ -78,7 +77,7 @@ def _owner_nav(request):
 @login_required
 def owner_menu(request, slug):
     """إدارة المنيو ديال مول المطعم: التصنيفات والأطباق."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     categories = restaurant.categories.prefetch_related("products").all()
     ctx = {
         "restaurant": restaurant,
@@ -92,7 +91,7 @@ def owner_menu(request, slug):
 @login_required
 @require_POST
 def owner_category_add(request, slug):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     form = CategoryForm(request.POST)
     if form.is_valid():
         category = form.save(commit=False)
@@ -104,7 +103,7 @@ def owner_category_add(request, slug):
 @login_required
 @require_POST
 def owner_category_delete(request, slug, category_id):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     category = get_object_or_404(Category, id=category_id, restaurant=restaurant)
     category.delete()
     return redirect("menu:owner_menu", slug=slug)
@@ -112,7 +111,7 @@ def owner_category_delete(request, slug, category_id):
 
 @login_required
 def owner_product_add(request, slug):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     if request.method == "POST":
         form = ProductForm(restaurant, request.POST, request.FILES)
         if form.is_valid():
@@ -129,7 +128,7 @@ def owner_product_add(request, slug):
 
 @login_required
 def owner_product_edit(request, slug, product_id):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     product = get_object_or_404(Product, id=product_id, restaurant=restaurant)
     if request.method == "POST":
         form = ProductForm(restaurant, request.POST, request.FILES, instance=product)
@@ -146,7 +145,7 @@ def owner_product_edit(request, slug, product_id):
 @login_required
 @require_POST
 def owner_product_delete(request, slug, product_id):
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     product = get_object_or_404(Product, id=product_id, restaurant=restaurant)
     product.delete()
     return redirect("menu:owner_menu", slug=slug)
@@ -156,7 +155,7 @@ def owner_product_delete(request, slug, product_id):
 @require_POST
 def owner_product_toggle(request, slug, product_id):
     """إظهار/إخفاء طبق بسرعة — بلا ما تمسح."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     product = get_object_or_404(Product, id=product_id, restaurant=restaurant)
     product.is_available = not product.is_available
     product.save(update_fields=["is_available"])

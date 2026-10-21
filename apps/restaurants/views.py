@@ -38,17 +38,32 @@ def restaurant_create(request):
                         plan=demo_plan,
                         status=Subscription.Status.TRIAL,
                     )
-            return redirect("accounts:dashboard")
+            # المطعم الجديد كيبقى قيد المراجعة حتى يفعّلو مالك المنصة
+            return redirect("restaurant_pending", slug=restaurant.slug)
     else:
         form = RestaurantForm()
 
     return render(request, "restaurants/restaurant_form.html", {"form": form})
-def _get_owned_restaurant(request, slug):
-    """يرجع المطعم إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
+
+
+@login_required
+def restaurant_pending(request, slug):
+    """صفحة حالة مطعم قيد المراجعة: التحضير مسموح، والتشغيل كيبدا بعد التفعيل."""
+    restaurant = _get_member_restaurant(request, slug)
+    if restaurant.is_active:
+        return redirect("accounts:dashboard")
+    ctx = {
+        "restaurant": restaurant,
+        "memberships": request.user.memberships.select_related(
+            "restaurant"
+        ).order_by("restaurant__name"),
+    }
+    return render(request, "restaurants/restaurant_pending.html", ctx)
+def _get_member_restaurant(request, slug):
+    """يرجع المطعم (أي حالة) إلا كان المستخدم مالك أو مدير ديالو، وإلا 404."""
     return get_object_or_404(
         Restaurant.objects.filter(
             slug=slug,
-            is_active=True,
             memberships__user=request.user,
             memberships__role__in=[
                 Membership.Roles.OWNER,
@@ -61,7 +76,7 @@ def _get_owned_restaurant(request, slug):
 @login_required
 def restaurant_settings(request, slug):
     """إعدادات المطعم: الاسم، الهاتف، العنوان، ثمن التوصيل."""
-    restaurant = _get_owned_restaurant(request, slug)
+    restaurant = _get_member_restaurant(request, slug)
     if request.method == "POST":
         form = RestaurantSettingsForm(request.POST, instance=restaurant)
         if form.is_valid():

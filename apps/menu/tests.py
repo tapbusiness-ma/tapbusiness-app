@@ -8,7 +8,8 @@ from .models import Category, Product
 class PublicMenuTests(TestCase):
     def setUp(self):
         self.restaurant = Restaurant.objects.create(
-            name="Test Resto", slug="test-resto"
+            name="Test Resto", slug="test-resto",
+            is_active=True,
         )
         self.category = Category.objects.create(
             restaurant=self.restaurant, name="Tacos"

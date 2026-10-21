@@ -10,7 +10,7 @@ from .models import Order, OrderItem
 
 class OrderItemSnapshotTests(TestCase):
     def test_item_keeps_name_and_price_snapshot_after_product_changes(self):
-        restaurant = Restaurant.objects.create(name="Resto", slug="resto")
+        restaurant = Restaurant.objects.create(is_active=True, name="Resto", slug="resto")
         product = Product.objects.create(
             restaurant=restaurant,
             name="Chicken Tacos",
@@ -41,7 +41,7 @@ class OrderItemSnapshotTests(TestCase):
 
 class CheckoutFlowTests(TestCase):
     def setUp(self):
-        self.restaurant = Restaurant.objects.create(
+        self.restaurant = Restaurant.objects.create(is_active=True,
             name="Checkout Resto",
             slug="checkout-resto",
             delivery_fee=Decimal("7.50"),
@@ -144,7 +144,7 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(order.table_number, "T7")
 class OrderTokenSecurityTests(TestCase):
     def setUp(self):
-        self.restaurant = Restaurant.objects.create(name="R", slug="r")
+        self.restaurant = Restaurant.objects.create(is_active=True, name="R", slug="r")
         self.order = Order.objects.create(
             restaurant=self.restaurant,
             customer_name="Sara",
@@ -172,7 +172,7 @@ class OrderTokenSecurityTests(TestCase):
 
 class DeliveryFeeTests(TestCase):
     def setUp(self):
-        self.restaurant = Restaurant.objects.create(
+        self.restaurant = Restaurant.objects.create(is_active=True,
             name="R", slug="r", delivery_fee=Decimal("10.00")
         )
         self.product = Product.objects.create(
@@ -208,7 +208,7 @@ class DeliveryFeeTests(TestCase):
 
 class StatusTransitionTests(TestCase):
     def setUp(self):
-        self.restaurant = Restaurant.objects.create(name="R", slug="r")
+        self.restaurant = Restaurant.objects.create(is_active=True, name="R", slug="r")
         from django.contrib.auth.models import User
 
         from apps.restaurants.models import Membership
@@ -257,7 +257,7 @@ class CartCapTests(TestCase):
 
         request = RequestFactory().get("/")
         request.session = self.client.session
-        restaurant = Restaurant.objects.create(name="R", slug="r")
+        restaurant = Restaurant.objects.create(is_active=True, name="R", slug="r")
         cart = Cart(request, restaurant)
         for _ in range(30):
             cart.add(5)
@@ -270,7 +270,7 @@ class OwnerOrdersPaginationTests(TestCase):
 
         from apps.restaurants.models import Membership
 
-        self.restaurant = Restaurant.objects.create(name="R", slug="r")
+        self.restaurant = Restaurant.objects.create(is_active=True, name="R", slug="r")
         self.user = User.objects.create_user("owner", password="x")
         Membership.objects.create(
             user=self.user,

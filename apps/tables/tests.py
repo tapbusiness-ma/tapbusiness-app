@@ -7,7 +7,7 @@ from .models import Table
 
 class TableQrTests(TestCase):
     def setUp(self):
-        self.restaurant = Restaurant.objects.create(
+        self.restaurant = Restaurant.objects.create(is_active=True,
             name="Table Resto", slug="table-resto"
         )
         self.table = Table.objects.create(restaurant=self.restaurant, number="T1")
