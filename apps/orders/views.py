@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 
+from apps.loyalty.services import award_points_for_order
 from apps.menu.models import Product
 from apps.restaurants.models import Membership, Restaurant
 from .cart import Cart
@@ -203,11 +204,18 @@ def owner_order_status(request, slug, order_id):
     restaurant = _get_member_restaurant(request, slug)
     if not restaurant.is_active:
         return redirect("restaurant_pending", slug=slug)
-    order = get_object_or_404(Order, id=order_id, restaurant=restaurant)
     new_status = request.POST.get("status")
-    if new_status in dict(Order.Status.choices) and order.can_transition_to(
-        new_status
-    ):
-        order.status = new_status
-        order.save(update_fields=["status"])
+    with transaction.atomic():
+        # قفل سطر الطلب: طلبان متزامنان ما يقدروش يبدلو الحالة بجوج
+        order = get_object_or_404(
+            Order.objects.select_for_update(), id=order_id, restaurant=restaurant
+        )
+        if new_status in dict(Order.Status.choices) and order.can_transition_to(
+            new_status
+        ):
+            order.status = new_status
+            order.save(update_fields=["status"])
+            if new_status == Order.Status.DELIVERED:
+                # ربح نقط الولاء فنفس المعاملة (مطاعم Premium فقط)
+                award_points_for_order(order)
     return redirect("orders:owner_orders", slug=slug)

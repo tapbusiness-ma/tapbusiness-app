@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.orders",
     "apps.tables",
     "apps.subscriptions",
+    "apps.loyalty",
     "axes",  # حماية تسجيل الدخول من تخمين كلمة السر
 ]
 
